@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>{{processed_data.name}}</p>
+
+
+    <div>
+        <table border="2px">
+          <tr>
+            <th>Call To</th>
+            <th>Call To</th>
+            <th>Call To</th>
+            <th>Call To</th>
+          </tr>
+          {% for item in audio_name %}
+          <tr>
+            <td>Kavan Vavadiya</td>
+            <td>XXXXXX</td>
+            <td>{{ item }}</td>
+            <td>
+              <audio controls>
+                <source src="/media/{{ item }}">
+              </audio>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+<a href="/auditor/process/{{code}}">
+    {% csrf_token %}
+    <button >Process</button>
+</body>
+</html>
