@@ -61,3 +61,7 @@ def Process(request,pk):
         )
         processed.save()
     return render(request, "results.html", {})   
+
+def dashboard(request):
+    
+    return render(request, "dashboard.html", {})
