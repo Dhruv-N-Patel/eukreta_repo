@@ -144,10 +144,12 @@
             <th>Call To</th>
             <th>Call To</th>
             <th>Call To</th>
+            <th>Transcript</th>
+            <th>Emotion</th>
           </tr>
           {% for item in audio_name %}
           <tr>
-            <td>Kavan Vavadiya</td>
+            <td>User</td>
             <td>XXXXXX</td>
             <td>{{ item }}</td>
             <td>
@@ -155,12 +157,20 @@
                 <source src="/media/{{ item }}">
               </audio>
             </td>
+            <td>
+             {{transcript}}
+            </td>
+            <td>
+              {{emotion_labels}}
+            </td>
           </tr>
           {% endfor %}
         </table>
       </div>
 <a href="/auditor/process/{{code}}">
     {% csrf_token %}
+   
+
     <button >Process</button>
 </a>
 </body>
