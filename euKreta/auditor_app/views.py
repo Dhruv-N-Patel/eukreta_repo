@@ -71,6 +71,10 @@ def Process(request,pk):
         processed.save()
     return render(request, "results.html", {})   
 
+def dashboard(request):
+    
+    return render(request, "dashboard.html", {})
+
 
 def convert_mp3_to_wav(input_mp3, output_wav):
     audio = AudioFileClip(input_mp3)

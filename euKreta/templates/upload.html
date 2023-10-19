@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Upload</title>
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <style>
         body {
@@ -120,6 +120,41 @@
                    padding: 0px;
                    margin: 0px;
                  }
+  .content-table{
+    padding: 20px;
+    font-size: 16px;
+  }
+
+  .player {
+    padding: 0;
+    border: 0;
+    background: inherit;
+    cursor: pointer;
+    outline: none;
+    width: 20px;
+    height: 10px;
+  }
+
+  .input-button{
+    padding: 10px 20px;
+      font-size: 16px;
+      text-align: center;
+      text-decoration: none;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      background-color: #007bff;
+      cursor: pointer;
+      margin: 7px;
+      width: 200px;
+   }
+   
+   .input-button a{
+    text-decoration: none;
+    color: #fff;
+    padding: 0px;
+   margin: 0px;
+   }
     </style>
 </head>
 <body>
@@ -137,13 +172,13 @@
             </div>
         </div>
       </nav>
-      <div>
+      <div class="content-table">
         <table border="2px">
           <tr>
             <th>Call To</th>
-            <th>Call To</th>
-            <th>Call To</th>
-            <th>Call To</th>
+            <th>Caller ID</th>
+            <th>File Name</th>
+            <th>Recording</th>
             <th>Transcript</th>
             <th>Emotion</th>
           </tr>
@@ -151,9 +186,9 @@
           <tr>
             <td>User</td>
             <td>XXXXXX</td>
-            <td>{{ item }}</td>
-            <td>
-              <audio controls>
+            <td >{{ item }}</td>
+            <td class="player">
+              <audio  controls >
                 <source src="/media/{{ item }}">
               </audio>
             </td>
@@ -169,8 +204,6 @@
       </div>
 <a href="/auditor/process/{{code}}">
     {% csrf_token %}
-   
-
     <button >Process</button>
 </a>
 </body>
