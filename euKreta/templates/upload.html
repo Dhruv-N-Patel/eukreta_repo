@@ -180,24 +180,37 @@
             <th>File Name</th>
             <th>Recording</th>
             <th>Transcript</th>
+            <th>Keywords</th>
             <th>Emotion</th>
+            
           </tr>
-          {% for item in audio_name %}
+          {% for item in processed %}
           <tr>
             <td>User</td>
             <td>XXXXXX</td>
-            <td >{{ item }}</td>
+            <td >{{ item.audio_name }}</td>
             <td class="player">
               <audio  controls >
-                <source src="/media/{{ item }}">
+                <source src="/media/{{ item.audio_name }}">
               </audio>
             </td>
             <td>
-             {{transcript}}
+             {{item.transcript}}
             </td>
             <td>
-              {{emotion_labels}}
+              {% for key in item.keywords %}
+              <li>
+                {% for word in key %}
+                {{word}} - 
+                {% endfor %}
+                
+              </li>
+              {% endfor %}
             </td>
+            <td>
+              {{item.emotion_labels}}
+            </td>
+            
           </tr>
           {% endfor %}
         </table>
