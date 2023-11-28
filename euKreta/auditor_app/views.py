@@ -9,6 +9,13 @@ from pydub import AudioSegment
 from moviepy.editor import AudioFileClip
 import speech_recognition as sr
 from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
+from keybert import KeyBERT
+import googletrans
+from googletrans import Translator
+from django.shortcuts import render
+from .models import original_audio, Processed
+from .utils import create_transcript_emotion, detect_emotion, Keywords_ex, convert_mp3_to_wav, aud2txt, split_audio
+
 
 def index(request):
     context ={
@@ -17,126 +24,119 @@ def index(request):
     }
     return render(request,'index.html', context)
 
-def Document_save(request):
-    if request.method=="POST":
-        audio = request.FILES["audio"]
-        code = datetime.datetime.now()
-        index = 0
-        audio_name = []
-        for audio in request.FILES.getlist('audio'):
-            audio_file = original_audio.objects.create(
-                                        name=audio.name,
-                                        file=audio,
-                                        code = code
-                                        )
-            # audio_name[index] = audio_file.name
-            audio_name.insert(index, audio_file.name)
-            index = index +1
-            
-            transcript, emotion_labels=create_transcript_emotion(audio)
-            print(transcript,"hello Nikhil ")
-        print(code)
-        context= {"audio_name":audio_name , "code":str(code) , "transcript":transcript,"emotion_labels":emotion_labels
-                  }
-        return render(request, "upload.html", context)
-    return render(request, "index.html")
-       
-
-def processed_data(request,pk) :
-    processed_data= Processed.objects.get()
-    context={
-        'processed_data': processed_data
-    }
-    return render(request, 'results.html', context)
-
-def Process(request,pk):
-    special_code = pk
-
-    objects_with_code = original_audio.objects.filter(code=special_code)
-    print(objects_with_code)
-
-    for original in objects_with_code:
-        print(original)
-
-        
-        processed = Processed(
-            name=original.name,
-            original_file = original.file,
-            # processed_file = ,
-            # Transcript = generatd_transcript,
-            # Mood = project.skills,
-            # Satisfaction = project.tools,
-            # DetailsShared = project.genre,
-        )
-        processed.save()
-    return render(request, "results.html", {})   
-
 def dashboard(request):
     
     return render(request, "dashboard.html", {})
 
+def Document_save(request):
+    if request.method == "POST":
+        audio_files = request.FILES.getlist('audio')
+        code = datetime.datetime.now()
+        objectArr = []
 
-def convert_mp3_to_wav(input_mp3, output_wav):
-    audio = AudioFileClip(input_mp3)
-    audio.write_audiofile(output_wav, codec='pcm_s16le', fps=audio.fps)
-    return output_wav
 
-def split_audio(input_wav, output_folder, snippet_length_ms=30000):
-    audio = AudioSegment.from_file(input_wav)
-    snippet_length = snippet_length_ms  # 30 seconds (in milliseconds)
-    j=0
-    for i, start_time in enumerate(range(0, len(audio), snippet_length)):
-        end_time = start_time + snippet_length
-        snippet = audio[start_time:end_time]
-        snippet.export(f"{output_folder}/snippet_{i+1}.wav", format="wav")
-        j=j+1
-    return j
+        for audio in audio_files:
+            audio_file = original_audio.objects.create(
+                name = audio.name.replace(" ", "").replace("[", "").replace("]", "").replace("(", "").replace(")", "").replace("#", "").replace(",", ""),
+                file=audio,
+                code=code
+            )
 
-def aud2txt(generated_wav):
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(generated_wav) as source:
-        audio = recognizer.record(source)
-        try:
-            print("Recognizing...")
-            query = recognizer.recognize_google(audio, language="en-IN")
-            print(f"User said: {query}")
-            return query
-        except Exception as e:
-            print(f"An error occurred during transcription: {e}")
-            return None
-        
-def create_transcript_emotion(audio):
+            object = {
+                "audio_name": audio_file.name,
+                "code": code
+            }
+            objectArr.append(object)
+
+        context = {"processed": objectArr, "code": code}
+        return render(request, "upload.html", context)
+    #return render(request, "index.html")
+
+def create_transcript_emotion_keywords(audio):
     print(f"Input audio: {audio}")
-    input_mp3 = 'http://127.0.0.1:8000/media/' + audio.name
-    output_wav =audio.name + "_output.wav"
     
+    input_mp3 = os.path.join('media', audio.name)
+
+    output_wav = audio.name + "_output.wav"
+
     try:
         generated_wav = convert_mp3_to_wav(input_mp3, output_wav)
         print("Conversion successful.")
-        
+
         output_folder = "output_snippets"
         os.makedirs(output_folder, exist_ok=True)
         split_audio(generated_wav, output_folder)
-        j=split_audio(generated_wav, output_folder)
-        
+
+        print("KUCH TOH HUA")
+
         transcript = ""
-        for i in range(1, j):  # Assuming you have 3 snippets
+        for i in range(1, 3):  # Assuming you have 3 snippets
             input_wav = f"{output_folder}/snippet_{i}.wav"
             snippet_transcript = aud2txt(input_wav)
             if snippet_transcript:
                 transcript += snippet_transcript + " "
-        
+
         print("\nFinal Transcript:")
         print(transcript)
-        
-        RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
-        TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
 
+        keywords = Keywords_ex(transcript)
+        print(keywords)
 
-        emotion = pipeline('sentiment-analysis',model='arpanghoshal/EmoRoBERTa')
-        emotion_labels = emotion(transcript)
-        print(emotion_labels,"emotion label in function")
-        return transcript ,emotion_labels
+        emotion_labels = detect_emotion(transcript)
+        print(emotion_labels, "emotion label in function")
+
+        return transcript, emotion_labels, keywords
     except Exception as e:
         print(f"An error occurred: {e}")
+        return "", "", []
 
+def Process(request, pk):
+    special_code = pk
+
+    objects_with_code = original_audio.objects.filter(code=special_code)
+    processed_data = []
+
+    for original in objects_with_code:
+        transcript, emotion_labels, keywords = create_transcript_emotion_keywords(original.file)
+
+        processed = Processed(
+            name=original.name,
+            original_file=original.file,
+            Transcript=transcript,
+            Satisfaction=emotion_labels,
+            DetailsShared=keywords,
+            code=original.code,
+            # Add other fields as needed
+        )
+        processed.save()
+
+        # processed_data.append({
+        #     "audio_name": original.name,
+        #     "transcript": transcript,
+        #     "emotion_labels": emotion_labels,
+        #     "keywords": [{"word": item[0], "score": item[1]} for item in keywords]
+        # })
+
+    context = {"processed": processed_data, "code": special_code}
+    return render(request, "process.html", context)
+
+def processed_data(request,pk) :
+    special_code = pk
+
+    processed_data = Processed.objects.filter(code=special_code)
+
+    objectArr = []
+
+    for data in processed_data:
+        print(data.DetailsShared)
+        object = {
+            "audio_name": data.name,
+            "transcript": data.Transcript,
+            "emotion_labels": data.Satisfaction,
+            "keywords": [{"word": item[0], "score": item[1]} for item in data.DetailsShared]
+        }
+        # print(object,"ye hhua ki nhi bata jaldi")
+        objectArr.append(object)
+
+    context = {"processed": objectArr}
+    return render(request, "results.html", context)

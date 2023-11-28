@@ -20,7 +20,8 @@ class Processed(models.Model):
     Transcript= models.TextField()
     Mood = models.CharField(max_length=500, null=True, blank=True)
     Satisfaction = models.CharField(max_length=100, null=True, blank=True)
-    DetailsShared = models.TextField(null=True, blank=True)
+    DetailsShared = models.JSONField(null=True, blank=True)
+    code = models.CharField(max_length=20)
 
     def __str__(self):
         return self.name

@@ -24,6 +24,7 @@ urlpatterns = [
     path("auditor/", include("auditor_app.urls")),
     path("admin/", admin.site.urls),
     path("home/", views.dashboard , name="dashboard"),
+    path("", views.dashboard , name="dashboard"),
 
 ]
 if settings.DEBUG:

@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload</title>
+    <link ref="icon" href="{% static 'euKreta_logo.png' %}" type="image/x-icon">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <style>
         body {
@@ -120,41 +122,50 @@
                    padding: 0px;
                    margin: 0px;
                  }
-  .content-table{
-    padding: 20px;
-    font-size: 16px;
-  }
-
-  .player {
-    padding: 0;
-    border: 0;
-    background: inherit;
-    cursor: pointer;
-    outline: none;
-    width: 20px;
-    height: 10px;
-  }
-
-  .input-button{
-    padding: 10px 20px;
-      font-size: 16px;
-      text-align: center;
-      text-decoration: none;
-      border: none;
-      border-radius: 5px;
-      color: #fff;
-      background-color: #007bff;
-      cursor: pointer;
-      margin: 7px;
-      width: 200px;
-   }
-   
-   .input-button a{
-    text-decoration: none;
-    color: #fff;
-    padding: 0px;
-   margin: 0px;
-   }
+                 .content-table {
+                  padding: 20px;
+                  font-size: 16px;
+              }
+      
+              table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 20px;
+              }
+      
+              th,
+              td {
+                  padding: 15px;
+                  text-align: left;
+                  border-bottom: 1px solid #ddd;
+              }
+      
+              th {
+                  background-color: #007bff;
+                  color: #fff;
+              }
+      
+              .player {
+                  width: 50px;
+              }
+      
+              .input-button {
+                  padding: 10px 20px;
+                  font-size: 16px;
+                  text-align: center;
+                  text-decoration: none;
+                  border: none;
+                  border-radius: 5px;
+                  color: #fff;
+                  background-color: #007bff;
+                  cursor: pointer;
+                  margin: 20px 0;
+                  display: inline-block;
+              }
+      
+              .input-button:hover {
+                  background-color: #0056b3;
+              }
     </style>
 </head>
 <body>
@@ -172,52 +183,37 @@
             </div>
         </div>
       </nav>
-      <div class="content-table">
-        <table border="2px">
-          <tr>
-            <th>Call To</th>
-            <th>Caller ID</th>
-            <th>File Name</th>
-            <th>Recording</th>
-            <th>Transcript</th>
-            <th>Keywords</th>
-            <th>Emotion</th>
-            
-          </tr>
-          {% for item in processed %}
-          <tr>
-            <td>User</td>
-            <td>XXXXXX</td>
-            <td >{{ item.audio_name }}</td>
-            <td class="player">
-              <audio  controls >
-                <source src="/media/{{ item.audio_name }}">
-              </audio>
-            </td>
-            <td>
-             {{item.transcript}}
-            </td>
-            <td>
-              {% for key in item.keywords %}
-              <li>
-                {% for word in key %}
-                {{word}} - 
-                {% endfor %}
-                
-              </li>
+
+    <div class="content-table">
+      <table>
+          <thead>
+              <tr>
+                  <th>Call To</th>
+                  <th>Caller ID</th>
+                  <th>File Name</th>
+                  <th>Recording</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for item in processed %}
+              <tr>
+                  <td>User</td>
+                  <td>XXXXXX</td>
+                  <td>{{ item.audio_name }}</td>
+                  <td class="player">
+                      <audio controls>
+                          <source src="/media/{{ item.audio_name }}">
+                      </audio>
+                  </td>
+              </tr>
               {% endfor %}
-            </td>
-            <td>
-              {{item.emotion_labels}}
-            </td>
-            
-          </tr>
-          {% endfor %}
-        </table>
-      </div>
-<a href="/auditor/process/{{code}}">
+          </tbody>
+      </table>
+  </div>
+  <a href="/auditor/process/{{code|safe}}">
     {% csrf_token %}
-    <button >Process</button>
+      <button class="input-button">Process</button>
+  </a>
 </a>
 </body>
 </html>
