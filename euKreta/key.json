@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "neat-acre-388407",
+  "private_key_id": "5fa60a622a699e59587a24598539d4b1fa70ecda",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCjlTYP6elxak7K\nbPxWp2d252HlhawZLmfqfz/ScONM6JGujN3KCGpkP33Kumk4zr9Vb7Z0aqJbtof4\nxvc1agb4xXGYhLFRRmRcXYWdiTzMZBdoIC3zrRhI2RA0Eg2bRpxra5BrAT9CERnG\nSGcgTVAvo26flVAUYZqAAXp3Rj9E9g2Qn6G8xqCimy9P+tsFwSjV7KB/iXl7I/2C\nRnClnq45DzjdYv7BA4USbG1xeu0D1sFICGZKy1pvRKeQDYaZ9rNIe9KTNnNcRT7P\nF6OJVs7NeID5mPk7Oo3UxaD0o3nrDQSFvKjlsp/NHCyBfkvYTxFOMMUvGGl6eDAQ\nAQ6FmReJAgMBAAECggEAOWBdvQkzm1dJWZEOlSpUjQ0tdj8DlTWEt2h4r0xvPYuZ\nhZrdND7takomyhPGUmmaDNKJMZ4xYm/Mk4LeNLsCxQEkDfYE59gD3a3j7tSzIZG9\n8ATReVXuXabdGxZ19U+4D6mD1zRxxq+O1dCRc3AKvxrY81qA4xU1Bs798JYQHRSM\n0Y81DzKwvj+QSlONI2/asjeEj8vxquDc5g/U5cKyvEjnGq88dsnyHFBzSIv55QVn\nB9zqsASM0uiiJ9w300XGAeUnBAwMTS3q9o04r4/ZDne2TOO3wDIFtJ6w1yKpE4mt\ncEnhzZ0u1qKtXjNmS7UntyUjkoQOXuZGoyuhBu1MXQKBgQDb8RH1BBJPAlWPlyQ1\ncuq8DHdF/Wfbz3tplatHTckDvT1mSPWjcRRBh9aepS/EfIk0U3j5R5ccCLBZKkIP\nsRn1oT/QAnoVQcoqjzYcRmxz+jOxApRlGYjMleVWx3ZAEgxOze34Rth6OWu74K0f\nFjCtALPrhuKh0HevcdyqYZv+LwKBgQC+ZsRWh6ODoXL0nliQC+H+mW84PLMF49k5\nvWaHnrxNVhTOQJBV42zGoP9G8Otdy6gokN1mKgYpZyGNe1FjHTtMuCkUHVjyNVFe\n1o8RwppuRDhXgNtjTEt8xRSYBi5wAN0miI/ScsjEuQk7qcu+54Wf5Fjy1HXfgiAR\nrggDOPpPxwKBgBIedwM/VZ7Kq2/L3MDGec4KHN1YNfEm05zsJpMWNmQnd+JwSkQv\nsaKAZU7mftvqAoecBNBMdIdrs9N0psKSLXhN02r4eUQ9CkGdULDdoFuhlhaUBtOZ\nWeq4wo72mahHlFn9nwggFf9jsZtls/1mn5XxA+F4WD1KZkG+2JX0upwjAoGAbNqc\nDUxms26uJiQRRelFPyXBbElnoEpveo9J+udJiH1aT8ChxDjNi5Gn4IsERQ+WB/sq\nWKpV832+tQB3u06PBIGVGqbcnzzUVIAeM20qlTfzbjOBOff4gFC8QV3nVqlnxgv1\nDcAKAE45dR7SGUaMIqmOIOZOrYXbh8ATXKRKlykCgYA9L6Jld5wZtB0eSL60O/pp\n5+cqBTFgOdeq32znXAoSybFuweaK4pBYqdIxnsDmY21ZSrGeWE3uLI7uFz2wrpez\n6HPJIROPrp5mbahIw38etEjIMh/JGiET0Sgk3C+JjuO+6OQ8ILMrifxHsGxymtpj\nGoh7C0JSgxOMXetlzwWCIw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "eukretaservice@neat-acre-388407.iam.gserviceaccount.com",
+  "client_id": "114666787399105136248",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/eukretaservice%40neat-acre-388407.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

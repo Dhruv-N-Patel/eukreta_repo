@@ -1,20 +1,12 @@
 from django.shortcuts import render
 from .models import original_audio, Processed
-from django.http import HttpResponse
 import datetime
 from auditor_app.models import original_audio
 import os
-import win32com.client
-from pydub import AudioSegment
-from moviepy.editor import AudioFileClip
 import speech_recognition as sr
-from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
-from keybert import KeyBERT
-import googletrans
-from googletrans import Translator
 from django.shortcuts import render
 from .models import original_audio, Processed
-from .utils import create_transcript_emotion, detect_emotion, Keywords_ex, convert_mp3_to_wav, aud2txt, split_audio
+from .utils import detect_emotion, Keywords_ex, convert_mp3_to_wav, aud2txt, split_audio
 
 
 def index(request):
@@ -65,57 +57,58 @@ def create_transcript_emotion_keywords(audio):
 
         output_folder = "output_snippets"
         os.makedirs(output_folder, exist_ok=True)
-        split_audio(generated_wav, output_folder)
+        j_splits = split_audio(generated_wav, output_folder)
 
-        print("KUCH TOH HUA")
+        transcriptions = []
 
-        transcript = ""
-        for i in range(1, 3):  # Assuming you have 3 snippets
+        for i in range(1, j_splits):  # Corrected the range
             input_wav = f"{output_folder}/snippet_{i}.wav"
-            snippet_transcript = aud2txt(input_wav)
-            if snippet_transcript:
-                transcript += snippet_transcript + " "
+            snippet_transcription = aud2txt(input_wav)
+            transcriptions.append(snippet_transcription)
 
-        print("\nFinal Transcript:")
-        print(transcript)
+        print("\nFinal Transcriptions:")
+        print(transcriptions)
 
-        keywords = Keywords_ex(transcript)
+        flattened_transcriptions = [item for sublist in transcriptions for item in sublist]
+
+        # Join the flattened list into a single string
+        full_transcript = " ".join(flattened_transcriptions)
+
+        print(full_transcript)
+
+        keywords = Keywords_ex(" ".join(full_transcript))
         print(keywords)
 
-        emotion_labels = detect_emotion(transcript)
+        emotion_labels = detect_emotion(" ".join(full_transcript))
         print(emotion_labels, "emotion label in function")
 
-        return transcript, emotion_labels, keywords
+        return transcriptions, emotion_labels, keywords, full_transcript 
     except Exception as e:
         print(f"An error occurred: {e}")
-        return "", "", []
+        return [], "", []
 
 def Process(request, pk):
     special_code = pk
 
     objects_with_code = original_audio.objects.filter(code=special_code)
+
     processed_data = []
 
     for original in objects_with_code:
-        transcript, emotion_labels, keywords = create_transcript_emotion_keywords(original.file)
+        transcriptions, emotion_labels, keywords, full_transcript = create_transcript_emotion_keywords(original.file)
 
-        processed = Processed(
-            name=original.name,
-            original_file=original.file,
-            Transcript=transcript,
-            Satisfaction=emotion_labels,
-            DetailsShared=keywords,
-            code=original.code,
-            # Add other fields as needed
-        )
-        processed.save()
-
-        # processed_data.append({
-        #     "audio_name": original.name,
-        #     "transcript": transcript,
-        #     "emotion_labels": emotion_labels,
-        #     "keywords": [{"word": item[0], "score": item[1]} for item in keywords]
-        # })
+        processed_instance = Processed(
+                name=f"{original.name}",
+                original_file=original.file,
+                Transcript=transcriptions,
+                Satisfaction=emotion_labels,
+                DetailsShared=keywords,
+                full_transcript=full_transcript,  # Set the full_transcript field
+                code=original.code,
+                # Add other fields as needed
+                )
+        processed_instance.save()
+        processed_data.append(processed_instance)
 
     context = {"processed": processed_data, "code": special_code}
     return render(request, "process.html", context)
@@ -135,7 +128,6 @@ def processed_data(request,pk) :
             "emotion_labels": data.Satisfaction,
             "keywords": [{"word": item[0], "score": item[1]} for item in data.DetailsShared]
         }
-        # print(object,"ye hhua ki nhi bata jaldi")
         objectArr.append(object)
 
     context = {"processed": objectArr}

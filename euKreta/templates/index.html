@@ -15,6 +15,7 @@
       padding: 0;
       height: 100%;
       background: #F6F5FA;
+      background-image: url('{% static 'bg.png' %}');
     }
   .bg_design{
     background-color: #D7F5FF;
@@ -23,6 +24,12 @@
   }
   .main_content{
     padding: 50px;
+    margin-top: 150px;
+    margin-bottom: 100px;
+    margin-right: 300px;
+    margin-left: 300px;
+    background-color: #fff;
+    border-radius: 15px;
   }
   .explain_text{
     width: 500px;
@@ -176,7 +183,8 @@
   </header>
   
   <main>
-  <div style="display:flex;justify-content:center;align-items:center;margin-top: 100px;">
+<div class = "main_content">
+  <div style="display:flex;justify-content:center;align-items:center;">
     <p style="font-size: 50px;">Upload Your File Here..</p>
 </div>
 
@@ -188,7 +196,7 @@
         <button class="input-button" type="submit">Submit</button>
     </form>
 </div>
-  
+</div>
   </main>
 </body>
 </html>
