@@ -26,11 +26,10 @@ def Document_save(request):
         code = datetime.datetime.now()
         objectArr = []
 
-
         for audio in audio_files:
             audio_file = original_audio.objects.create(
-                name = audio.name.replace(" ", "").replace("[", "").replace("]", "").replace("(", "").replace(")", "").replace("#", "").replace(",", ""),
-                file=audio,
+                name = audio.name.replace(" ", "").replace("[", "").replace("]", "").replace("(", "").replace(")", "").replace("#", "").replace(",", "").replace("-", ""),
+                file=audio, 
                 code=code
             )
 
@@ -42,7 +41,6 @@ def Document_save(request):
 
         context = {"processed": objectArr, "code": code}
         return render(request, "upload.html", context)
-    #return render(request, "index.html")
 
 def create_transcript_emotion_keywords(audio):
     print(f"Input audio: {audio}")
@@ -66,6 +64,9 @@ def create_transcript_emotion_keywords(audio):
             snippet_transcription = aud2txt(input_wav)
             transcriptions.append(snippet_transcription)
 
+        # whole_transcription = aud2txt(generated_wav)
+        # transcriptions.append(whole_transcription)
+
         print("\nFinal Transcriptions:")
         print(transcriptions)
 
@@ -76,13 +77,29 @@ def create_transcript_emotion_keywords(audio):
 
         print(full_transcript)
 
-        keywords = Keywords_ex(" ".join(full_transcript))
-        print(keywords)
+        keywords = Keywords_ex(full_transcript)
+        print("keywords : ",keywords)
 
-        emotion_labels = detect_emotion(" ".join(full_transcript))
-        print(emotion_labels, "emotion label in function")
+        emotion_detected = detect_emotion(" ".join(full_transcript))
+        print(emotion_detected, "emotion label in function")
 
-        return transcriptions, emotion_labels, keywords, full_transcript 
+        satis = ["Admiration", "Amusement", "Approval", "Caring", "Desire", "Excitement", "Gratitude", "Joy", "Love",
+                 "Optimism", "Pride", "Realization", "Relief", "Surprise"]
+        neutral = ["Confusion", "Curiosity", "Neutral"]
+        unsatis = ["Anger", "Disappointment", "Disapproval", "Disgust", "Embarrassment", "Fear", "Grief", "Nervousness",
+                   "Remorse", "Sadness"]
+
+        if emotion_detected in satis:
+            emotion_labels = "Satisfied"
+        elif emotion_detected in neutral:
+            emotion_labels = "Neutral"
+        elif emotion_detected in unsatis:
+            emotion_labels = "Dissatisfied"
+        else:
+            emotion_labels = "hehe :) nai hai supported" 
+
+        return transcriptions, emotion_labels, keywords, full_transcript, emotion_detected
+
     except Exception as e:
         print(f"An error occurred: {e}")
         return [], "", []
@@ -95,7 +112,7 @@ def Process(request, pk):
     processed_data = []
 
     for original in objects_with_code:
-        transcriptions, emotion_labels, keywords, full_transcript = create_transcript_emotion_keywords(original.file)
+        transcriptions, emotion_labels, keywords, full_transcript, emotion_detected = create_transcript_emotion_keywords(original.file)
 
         processed_instance = Processed(
                 name=f"{original.name}",
@@ -105,6 +122,7 @@ def Process(request, pk):
                 DetailsShared=keywords,
                 full_transcript=full_transcript,  # Set the full_transcript field
                 code=original.code,
+                Mood = emotion_detected,
                 # Add other fields as needed
                 )
         processed_instance.save()

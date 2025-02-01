@@ -1,15 +1,17 @@
 import os
 from transformers import pipeline
-# import win32com.client
+import win32com.client
 from pydub import AudioSegment
 from moviepy.editor import AudioFileClip
 import speech_recognition as sr
 from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
 from keybert import KeyBERT
 # import googletrans
-from googletrans import Translator
+# from googletrans import Translator
 import langid
 from google.cloud import speech_v1p1beta1 as speech
+from google.cloud.speech_v2 import SpeechClient
+from google.cloud.speech_v2.types import cloud_speech
 
 # def detect_language(content):
 #     client = language_v1.LanguageServiceClient()
@@ -25,10 +27,10 @@ from google.cloud import speech_v1p1beta1 as speech
 #     return language
 
 def convert_mp3_to_wav(input_mp3, output_wav):
-    if input_mp3.endswith(".mp3"):
+    if input_mp3.endswith("mp3"):
         audio = AudioFileClip(input_mp3)
         audio.write_audiofile(output_wav, codec='pcm_s16le', fps=audio.fps)
-    elif input_mp3.endswith(".wav"):
+    elif input_mp3.endswith("wav"):
         # No conversion needed, just copy the file
         output_wav = input_mp3
     else:
@@ -39,6 +41,8 @@ def convert_mp3_to_wav(input_mp3, output_wav):
 def Keywords_ex(text):
 
     lang, _ = langid.classify(text)
+
+    # kw_model = KeyBERT(model="paraphrase-multilingual-MiniLM-L12-v2")
 
     if lang == 'en':
         kw_model = KeyBERT()
@@ -57,9 +61,9 @@ def translater(text):
     changed_txt= translator.translate(text, src='en', dest='tr')
     return lang_det,changed_txt
 
-def split_audio(input_wav, output_folder, snippet_length_ms=30000):
+def split_audio(input_wav, output_folder, snippet_length_ms=50000):
     audio = AudioSegment.from_file(input_wav)
-    snippet_length = snippet_length_ms  # 30 seconds (in milliseconds)
+    snippet_length = snippet_length_ms  # 50 seconds (in milliseconds)
     j=0
     for i, start_time in enumerate(range(0, len(audio), snippet_length)):
         end_time = start_time + snippet_length
@@ -75,33 +79,50 @@ def convert_to_mono(input_path, output_path):
 
 def transcribe_audio(file_path):
     # Set the environment variable for Google Cloud credentials
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\dhruv\Documents\eukreta_repo\euKreta\key.json"
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\dhruv\Documents\eukreta_repo\euKreta\key.json"
 
     # Convert the audio file to mono
     mono_path = file_path
     convert_to_mono(file_path, mono_path)
-    # Initialize the Speech-to-Text client
-    client = speech.SpeechClient()
 
-    # Configure the audio file
-    audio_config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=audio.frame_rate,
-        language_code="hi-IN",
-    )
+    # Initialize the Speech-to-Text client
+    client = SpeechClient()
 
     with open(file_path, "rb") as audio_file:
         content = audio_file.read()
 
-    audio = speech.RecognitionAudio(content=content)
+    # Configure the audio file
+    config = cloud_speech.RecognitionConfig(
+        auto_decoding_config=cloud_speech.AutoDetectDecodingConfig(),
+        language_codes=["en-US"],
+        model="long",
+    )
 
-    # Request transcription
-    response = client.recognize(config=audio_config, audio=audio)
+
+    request = cloud_speech.RecognizeRequest(
+            recognizer=f"projects/neat-acre-388407/locations/global/recognizers/_",
+            config=config,
+            content=content,
+        )
+
+        # Transcribes the audio into text
+    response = client.recognize(request=request)
+
+    for result in response.results:
+            print(f"Transcript: {result.alternatives[0].transcript}")
 
     # Extract transcriptions from the response
     transcriptions = [result.alternatives[0].transcript for result in response.results]
 
     return transcriptions
+
+
+    audio = speech.RecognitionAudio(content=content)
+
+    # Request transcription
+    response = client.recognize(config=config, audio=audio)
+
+
 
 def aud2txt(generated_wav):
     try:
@@ -119,7 +140,7 @@ def aud2txt(generated_wav):
     except Exception as e:
         print(f"An error occurred during transcription: {e}")
         return []
-    
+
 def detect_emotion(transcript):
     # Detect the language of the transcript
     lang, _ = langid.classify(transcript)
@@ -134,20 +155,7 @@ def detect_emotion(transcript):
         emotion_det = emotion_pipeline(transcript)
         emotion_detected = emotion_det[0]["label"].capitalize()
 
-        satis = ["Admiration", "Amusement", "Approval", "Caring", "Desire", "Excitement", "Gratitude", "Joy", "Love",
-                 "Optimism", "Pride", "Realization", "Relief", "Surprise"]
-        neutral = ["Confusion", "Curiosity", "Neutral"]
-        unsatis = ["Anger", "Disappointment", "Disapproval", "Disgust", "Embarrassment", "Fear", "Grief", "Nervousness",
-                   "Remorse", "Sadness"]
-
-        if emotion_detected in satis:
-            emotion_labels = "Satisfied"
-        elif emotion_detected in neutral:
-            emotion_labels = "Neutral"
-        else:
-            emotion_labels = "Dissatisfied"
-
-        return emotion_labels
+        return emotion_detected
     else:
-        # If the language is not English, return a message indicating that the language is not supported
-        return "Language not supported"
+         # If the language is not English, return a message indicating that the language is not supported
+         return "Language not supported"
